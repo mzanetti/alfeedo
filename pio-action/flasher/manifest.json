@@ -1,0 +1,13 @@
+{
+  "name": "Alfeedo",
+  "version": "0.9.3",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "alfeedo-v0.9.3-pio-action-merged.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

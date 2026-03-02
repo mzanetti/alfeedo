@@ -1,0 +1,74 @@
+<div class='container'>
+    <h2>Firmware Update</h2>
+    <div class='info'>
+        <p>Select a firmware binary (.bin) below and press <b>Update</b> to flash the device.</p>
+    </div>
+    <form id="uploadForm" method='POST' action='/firmware' enctype='multipart/form-data'>
+        <input id="fileInput" type='file' name='firmware' accept='.bin' style='width:100%; margin:0.5em 0;' required>
+
+        <div id="progressContainer" class="updateProgressBarContainer">
+            <div id="progressBar" class="updateProgressBar">0%</div>
+        </div>
+
+        <button class='btn' type='submit'>Update</button>
+    </form>
+
+    <form action='/settings' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+</div>
+
+<script>
+
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        console.log("Submit event intercepted");
+        event.preventDefault();
+
+        const form = event.target;
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const responseDisplay = document.getElementById('responseDisplay');
+
+        if (fileInput.files.length === 0) {
+            alert("Please select a file to upload.");
+            return;
+        }
+
+        const formData = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', function(event) {
+            if (event.lengthComputable) {
+                // Calculate the percentage of the upload completed
+                const percentComplete = (event.loaded / event.total) * 100;
+                const percentage = Math.round(percentComplete);
+
+                // Update the progress bar display
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+            }
+        });
+
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                console.log("flashing success")
+            } else {
+                console.log("flashing error")
+            }
+            document.open();
+            document.write(xhr.responseText); 
+            document.close();
+            setTimeout(function() {
+                window.location.href = '/firmware'; 
+            }, 2000);
+        });
+
+        xhr.addEventListener('error', function() {
+            responseDisplay.innerHTML = serverHTML;
+        });
+
+        xhr.open('POST', '/firmware');
+        progressContainer.style.display = 'block';
+        xhr.send(formData);
+    });
+</script>

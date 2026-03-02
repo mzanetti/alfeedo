@@ -1,0 +1,214 @@
+<div class='container'>
+    <h2>Timers</h2>
+    <table class='timer-table' style='width: 100%; border-collapse: collapse; margin-bottom: 20px;'>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Mode</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <template id='timer-row-template'>
+            <tr timer-id=''>
+                <td style='padding: 8px;'>
+                    <input type='time' class='input-field' id="time-input-field" name='time_h_m' value=''>
+                </td>
+                <td style='padding: 8px;'>
+                    <select name='mode' class='mode-combobox' id="mode-select">
+                        <option value='meal'>Meal</option>
+                        <option value='snack'>Snack</option>
+                        <option value='off'>Off</option>
+                    </select>
+                </td>
+                <td style='padding: 8px; text-align: center;'>
+                    <button type='button' onclick='deleteTimer(this)' id='row-btn' class='btn danger' style='font-size: 0.8em; margin: 2px;'>&#x1F5D1;</button>
+                </td>
+            </tr>
+        </template>
+
+        <tbody id='timer-table-body'></tbody>
+    </table>
+    <div id="newTimerBlock">
+        <h3 style="margin-top: 25px; margin-bottom: 10px; color: #333;">Add a new timer</h3>
+        <form id='add-timer-form' action='/api/timers' method='POST'>
+        <table class='timer-table' style='width: 100%; border-collapse: collapse; margin-bottom: 20px;'>
+            <tbody>
+                <tr>
+                    <td style='padding: 8px;'>
+                        <input type='time' name='time_h_m' value='00:00' form='add-timer-form' class='input-field'>
+                    </td>
+                    <td style='padding: 8px;'>
+                        <select name='mode' form='add-timer-form' class='mode-combobox'>
+                            <option value='meal' selected>Meal</option>
+                            <option value='snack'>Snack</option>
+                            <option value='off'>Off</option>
+                        </select>
+                    </td>
+                    <td style='padding: 8px; text-align: center;'>
+                        <button type='submit' form='add-timer-form' class='btn' style='font-size: 0.8em; margin: 2px;'>Set</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </form>
+    </div>
+            
+    <button class='btn secondary' onClick="location.href = document.referrer;">Back</button>
+</div>
+
+<script>
+    
+    var maxTimers = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTimers();
+    });
+    
+    document.getElementById('timer-table-body').addEventListener('change', (event) => {
+        const target = event.target;
+        if (target.id == 'time-input-field' || target.id == 'mode-select') {
+            const row = target.closest('tr');
+            
+            if (row) {
+                const btn = row.querySelector('#row-btn');
+                if (btn) {
+                    btn.classList.remove('danger'); 
+                    btn.classList.add('secondary'); 
+                    btn.innerHTML = "&#x2714;";
+                    btn.onclick = function() { updateTimer(this); };
+                }
+            }
+        }
+    });
+
+    document.getElementById('add-timer-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const jsonObject = Object.fromEntries(formData.entries());
+
+        const response = await fetch(e.target.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonObject)
+        });
+        if (response.ok) {
+            console.log("Timer added successfully!");
+            loadTimers();
+        } else {
+            const errorData = await response.json();
+            alert("Failed to add timer: " + (errorData.error || "Unknown error"));
+        }
+    });
+    
+    function formatTo24h(minutes) {
+        const date = new Date(0); // UTC midnight
+        date.setMinutes(minutes);
+        console.log("Formatting minutes to time: ", minutes, " -> ", date.toISOString());
+        // Returns "HH:mm" (e.g., "14:05"), which type='time' requires
+        return date.toISOString().substring(11, 16);
+    }
+
+    function loadTimers() {
+        fetch('/api/timers')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('timer-table-body');
+            tableBody.innerHTML = ''; 
+
+            const template = document.getElementById('timer-row-template');
+
+            data.timers.forEach((entry, idx) => {
+                //console.log("Loading timer entry: ", entry);
+                const clone = template.content.cloneNode(true);
+                
+                const row = clone.querySelector('tr');
+                row.setAttribute('timer-id', idx);
+
+                // Note: <input type="time"> expects 24h format "HH:mm" 
+                const timeInput = clone.querySelector('.input-field');
+                //console.log("Formatting time for input: ", entry.time, " seconds -> ", formatTo24h(entry.time));
+                timeInput.value = formatTo24h(entry.time); 
+
+                const modeSelect = clone.querySelector('.mode-combobox');
+                modeSelect.value = entry.mode;
+
+                tableBody.appendChild(clone);
+            });
+
+            maxTimers = data.maxTimers;
+
+            const newTimerBlock = document.getElementById('newTimerBlock');
+            if (data.timers.length >= data.maxTimers) {
+                newTimerBlock.style.display = 'none';
+            } else {
+                newTimerBlock.style.display = 'block';
+            }
+
+        });
+    }
+
+    function deleteTimer(buttonElement) {
+        const row = buttonElement.closest('tr');
+        const tbody = row.closest('tbody');
+        const timerId = row.getAttribute('timer-id');
+        console.log("Deleting timer with ID: ", timerId);
+        fetch('/api/timers?timer_id=' + timerId, {
+            method: 'DELETE'
+        }).then(response => {
+            if (response.ok) {
+                row.style.transition = 'opacity 0.5s';
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    console.log("Checking timer count after deletion. Current rows: ", tbody.rows.length);
+                    if (tbody.rows.length < maxTimers) {
+                        document.getElementById('newTimerBlock').style.display = 'block';
+                    }
+                }
+                , 500);
+            }
+        });
+    }
+    function updateTimer(buttonElement) {
+        const row = buttonElement.closest('tr');
+        const timerId = row.getAttribute('timer-id');
+        
+        const timeValue = row.querySelector('input[name="time_h_m"]').value;
+        const modeValue = row.querySelector('select[name="mode"]').value;
+
+        console.log(`Updating timer ${timerId}: ${timeValue} (${modeValue})`);
+
+        const bodyData = {
+            timer_id: timerId,
+            time_h_m: timeValue,
+            mode: modeValue
+        };
+
+        fetch('/api/timers', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if (response.ok) {
+                // Revert the button back to a delete button
+                buttonElement.classList.remove('secondary');
+                buttonElement.classList.add('danger');
+                buttonElement.innerHTML = "&#x1F5D1;";
+                buttonElement.onclick = function() { deleteTimer(this); };
+                
+                row.style.backgroundColor = '#d4edda';
+                setTimeout(() => row.style.backgroundColor = 'transparent', 1000);
+            } else {
+                alert("Update failed");
+            }
+        })
+        .catch(err => console.error("Error updating timer:", err));
+    }
+</script>

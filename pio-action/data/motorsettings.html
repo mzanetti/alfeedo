@@ -1,0 +1,135 @@
+<div class='container'>
+    <h2>Feeder settings</h2>
+
+    <div class="info" style="display: block;">
+    <form oninput="setRevolutionsPerPortion(parseFloat(revolutionsPerPortionRange.value).toFixed(1)) ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label for="revolutionsPerPortionRange" style="margin: 0;">
+                <h3>Meal size</h3>
+            </label>
+            
+            <p style="margin: 0;">
+                <output id="revolutionsPerPortionOutput" name="revolutionsPerPortionOutput" for="revolutionsPerPortionRange">%%REVOLUTIONS_PER_PORTION%%</output>
+            </p>
+        </div>                
+        <input type="range"
+            id="revolutionsPerPortionRange"
+            name="revolutionsPerPortion"
+            min="%%MIN_REVOLUTIONS_PER_PORTION%%"
+            max="%%MAX_REVOLUTIONS_PER_PORTION%%"
+            step="0.25"
+            value="%%REVOLUTIONS_PER_PORTION%%"
+            aria-label="Revolutions per portion speed control"
+            style="width: 100%; height: 30px;"
+        >
+    </form>
+    </div>
+    <div class="info" style="display: block;">
+    <form oninput="setRevolutionsPerSnack(parseFloat(revolutionsPerSnackRange.value).toFixed(1)) ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label for="revolutionsPerSnackRange" style="margin: 0;">
+                <h3>Snack size</h3>
+            </label>
+            
+            <p style="margin: 0;">
+                <output id="revolutionsPerSnackOutput" name="revolutionsPerSnackOutput" for="revolutionsPerSnackRange">%%REVOLUTIONS_PER_SNACK%%</output>
+            </p>
+        </div>                
+        <input type="range"
+            id="revolutionsPerSnackRange"
+            name="revolutionsPerSnack"
+            min="%%MIN_REVOLUTIONS_PER_PORTION%%"
+            max="%%MAX_REVOLUTIONS_PER_PORTION%%"
+            step="0.25"
+            value="%%REVOLUTIONS_PER_SNACK%%"
+            aria-label="Revolutions per snack speed control"
+            style="width: 100%; height: 30px;"
+        >
+    </form>
+    </div>
+    <div class="info" style="display: block;">
+    <form oninput="setSpeed(parseFloat(speedRange.value).toFixed(1)) ">
+        <div width=100% style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label for="speedRange" style="margin: 0;">
+                <h3>Speed</h3>
+            </label>
+            
+            <p style="margin: 0;">
+                <output id="speedOutput" name="speedOutput" for="speedRange">%%SPEED%%</output>
+            </p>
+        </div>                
+        <input type="range"
+            id="speedRange"
+            name="speed"
+            min="%%MIN_SPEED%%"
+            max="%%MAX_SPEED%%"
+            step="0.1"
+            value="%%SPEED%%"
+            aria-label="Revolutions per second speed control"
+            style="width: 100%; height: 30px;"
+        >
+    </form>
+    </div>
+    <form action='/settings' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+</div>
+<script>
+    speedOutput = document.getElementById("speedOutput")
+    revolutionsPerPortionOutput = document.getElementById("revolutionsPerPortionOutput")
+    revolutionsPerSnackOutput = document.getElementById("revolutionsPerSnackOutput")
+
+    
+    async function setSpeed(speed) {
+        console.log("New speed setting: ", speed)
+        const response = await fetch("/api/settings/motor", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({speed: speed})
+        });
+        if (response.ok) {
+            console.log("Speed setting updated successfully!");
+            speedOutput.textContent = speed
+        } else {
+            const errorData = await response.json();
+            alert("Failed to update speed setting: " + (errorData.error || "Unknown error"));
+        }
+
+    }
+    async function setRevolutionsPerPortion(revolutionsPerPortion) {
+        console.log("New revolutionsPerPortion setting: ", revolutionsPerPortion)
+        const response = await fetch("/api/settings/motor", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({revolutionsPerPortion: revolutionsPerPortion})
+        });
+        if (response.ok) {
+            console.log("Revolutions per portion setting updated successfully!");
+            revolutionsPerPortionOutput.textContent = revolutionsPerPortion;
+        } else {
+            const errorData = await response.json();
+            alert("Failed to update revolutions per portion setting: " + (errorData.error || "Unknown error"));
+        }
+    }
+    async function setRevolutionsPerSnack(revolutionsPerSnack) {
+        console.log("New revolutionsPerSnack setting: ", revolutionsPerSnack)
+        const response = await fetch("/api/settings/motor", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({revolutionsPerSnack: revolutionsPerSnack})
+        });
+        if (response.ok) {
+            console.log("Revolutions per snack setting updated successfully!");
+            revolutionsPerSnackOutput.textContent = revolutionsPerSnack;
+        } else {
+            const errorData = await response.json();
+            alert("Failed to update revolutions per snack setting: " + (errorData.error || "Unknown error"));
+        }
+    }
+</script>

@@ -1,0 +1,117 @@
+<div class='container'>
+    <h2>Time Settings</h2>
+
+    <div class="info" style="display: block;">
+        <form>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label for="dateTime" style="margin: 0;">
+                    <h3>Date and Time</h3>
+                </label>
+                
+                <p style="margin: 0;">
+                    <output id="timeDisplay" name="timeDisplay" for="dateTime">%%CURRENT_DATETIME_STRING%%</output>
+                </p>
+            </div>                
+            <input type="datetime-local" id="dateTime" name="dateTime" class="input-field" onchange='setDateTime(event)' value="%%CURRENT_DATETIME_STRING%%" disabled>
+            <label id="ntpInfoLabel" style='display: none'>Time is synchronized via NTP. Manual setting is disabled.</label>
+        </form>
+    </div>
+    
+    <div class="info" style="display: block;">
+        <form>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label for="timezone" style="margin: 0;">
+                    <h3>Time Zone</h3>
+                </label>
+                    
+                <p style="margin: 0;">
+                    <output id="timeZoneDisplay" name="timeZoneDisplay" for="timeZone">%%TIMEZONE_FRIENDLY_NAME%%</output>
+                </p>
+            </div>                
+            <select name='timeZone' class='mode-combobox' onchange='setTimeZone(this)'>%%TIMEZONE_LIST%%</select>
+        </form>
+    </div>
+
+    <form action='/settings' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+
+</div>
+<script>
+    const timeDisplay = document.getElementById('timeDisplay');
+    const initialTimeStr = timeDisplay.getAttribute('data-server-time');
+    let currentTime = initialTimeStr ? new Date(initialTimeStr) : new Date();
+    function updateCurrentTime() {
+        timeDisplay.textContent = currentTime.toLocaleDateString() + " " + currentTime.toLocaleTimeString();
+        currentTime.setSeconds(currentTime.getSeconds() + 1);
+    }
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    function update() {
+        fetch('/api/settings/time')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched time settings:", data);
+                const serverTime = new Date(data.currentDateTime);
+                currentTime = serverTime;
+                const timeZoneDisplay = document.getElementById('timeZoneDisplay');
+                timeZoneDisplay.textContent = data.timezone;
+                const ntpInfoLabel = document.getElementById('ntpInfoLabel');
+                if (data.ntpSynchronized) {
+                    ntpInfoLabel.style.display = 'block';
+                } else {
+                    ntpInfoLabel.style.display = 'none';
+                }
+                const dateTimeInput = document.getElementById('dateTime');
+                dateTimeInput.disabled = data.ntpSynchronized;
+            })
+            .catch(error => console.error('Error fetching time data:', error));
+    }
+    update();
+
+    function setDateTime(event) {
+        event.preventDefault();
+        const dateTimeInput = document.getElementById('dateTime');
+        const dateTimeStr = dateTimeInput.value;
+        fetch('/api/settings/time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({datetime: dateTimeStr})
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Date and time updated successfully!");
+                update();
+            } else {
+                console.error("Failed to update date and time.");
+            }
+        })
+        .catch(error => console.error('Error updating date and time:', error));
+    }
+
+    function setTimeZone(element) {
+
+        event.preventDefault();
+        fetch('/api/settings/time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({timezone: element.value})
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Time zone updated successfully!");
+                update();
+            } else {
+                console.error("Failed to update time zone.");
+            }
+        })
+        .catch(error => console.error('Error updating time zone:', error));
+    }
+
+</script>
+
