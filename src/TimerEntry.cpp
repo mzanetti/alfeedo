@@ -17,7 +17,17 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 
 #include "TimerEntry.h"
 
-#include <map>
+#include <Arduino.h>
+#include <unordered_map>
+
+namespace std {
+  template <>
+  struct hash<String> {
+    size_t operator()(const String& s) const {
+      return std::hash<std::string>{}(s.c_str());
+    }
+  };
+}
 
 TimerEntry::TimerEntry(uint16_t time, TimerMode mode) : 
     m_time(time),
@@ -79,7 +89,7 @@ void TimerEntry::operator=(const TimerEntry & other)
 }
 
 String TimerEntry::timerModeToString(TimerMode mode) {
-    std::map<TimerEntry::TimerMode, String> modeMap = {
+    std::unordered_map<TimerEntry::TimerMode, String> modeMap = {
         {TimerEntry::TimerMode::Off, "off"},
         {TimerEntry::TimerMode::Meal, "meal"},
         {TimerEntry::TimerMode::Snack, "snack"}
@@ -89,12 +99,12 @@ String TimerEntry::timerModeToString(TimerMode mode) {
 }
 
 TimerEntry::TimerMode TimerEntry::timerModeFromString(const String &mode) {
-    std::map<String, TimerEntry::TimerMode> modeMap = {
+    std::unordered_map<String, TimerEntry::TimerMode> modeMap = {
         {"off", TimerEntry::TimerMode::Off},
         {"meal", TimerEntry::TimerMode::Meal},
         {"snack", TimerEntry::TimerMode::Snack}
     };
-    if (!modeMap.contains(mode)) {
+    if (modeMap.find(mode) == modeMap.end()) {
         return TimerEntry::TimerMode::Off;
     }
     return modeMap.at(mode);

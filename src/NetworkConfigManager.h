@@ -23,6 +23,8 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 #include <Preferences.h>
 #include <DNSServer.h>
 
+#include <vector>
+
 class NetworkConfigManager
 {
 public:
