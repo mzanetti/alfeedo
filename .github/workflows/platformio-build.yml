@@ -77,3 +77,21 @@ jobs:
           alfeedo-v${{ env.VERSION }}-merged.bin
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare Web Flasher Manifest
+      run: |
+        # Update the manifest with the actual filenames and version
+        cp flasher/manifest-template.json flasher/manifest.json
+        sed -i "s/FIRMWARE_FILE/..\/alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin/g" flasher/manifest.json
+        sed -i "s/LATEST/${{ env.VERSION }}/g" flasher/manifest.json
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        destination_dir: ${{ env.BRANCH }}
+        publish_files: |
+          flasher/index.html
+          flasher/manifest.json
+          alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin
