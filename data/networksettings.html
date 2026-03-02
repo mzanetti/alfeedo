@@ -1,0 +1,36 @@
+<div class='container'>
+    <h2>Network</h2>
+    <form action='/settings/network' method='POST'>
+        <div class="info" style="display: block;">
+            <label style="margin: 0;">
+                <h3>WiFi Settings</h3>
+            </label>
+            <div class="radio-group">
+                <label for="mode_ap">
+                    <input type="radio" class="selection-input" id="mode_ap" name="wifi_mode" value="AP" %%AP_CHECKED%%>
+                    <span class="selection-label">Access Point</span>
+                </label>
+            
+                <label for="mode_client">
+                    <input type="radio" class="selection-input" id="mode_client" name="wifi_mode" value="STA" %%CLIENT_CHECKED%%>
+                    <span class="selection-label">Client</span>
+                </label>
+            </div>
+            <h4 for="ssid" class="label">Wi-Fi Name (SSID):</h4><br>
+            <input type="text" class="input-field" id="ssid" name="ssid" required value="%%SSID%%"><br>
+
+            <h4 for="pass" class="label">Password:</h4><br>
+            <input type="password" class="input-field" id="pass" name="pass" value="%%PASS%%"><br><br>
+        </div>
+        <div class="info" style="display: block;">
+            <label style="margin: 0;">
+                <h3>Hostname</h3>
+            </label>
+            <input type="text" class="input-field" id="hostname" name="hostname" value="%%HOSTNAME%%"><br><br>
+        </div>
+        <button class='btn' type="submit">Apply</button>
+    </form>
+    <form action='/settings' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+</div>
