@@ -1,0 +1,97 @@
+name: Alfeedo ESP32 
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PlatformIO
+      # You may pin to the exact commit or the version.
+      # uses: n-vr/setup-platformio-action@ef5952e6a4d30c219158b781a84d31b018549c20
+      uses: n-vr/setup-platformio-action@v1.0.1
+      with:
+        # PlatformIO version to use. (e.g. 5.2.5, 5.2 or 5
+        platformio-version: 6.1.19 # optional, default is newest
+
+    - name: Build
+      run: platformio run
+
+    - name: Merge Binaries
+      run: |
+        pip install esptool
+        # Adjust the paths and offsets to match your build logs!
+        esptool.py --chip esp32 merge_bin \
+          -o merged-firmware.bin \
+          --flash_mode dio \
+          --flash_size 4MB \
+          0x1000 .pio/build/esp32dev/bootloader.bin \
+          0x8000 .pio/build/esp32dev/partitions.bin \
+          0x10000 .pio/build/esp32dev/firmware.bin
+
+    - name: Extract Version and Rename
+      id: vars
+      run: |
+        VERSION=$(grep "CATFEEDER_VERSION" platformio.ini | sed 's/.*\\"\(.*\)\\".*/\1/' | tr -d '\\\r\n')
+        echo "VERSION=$VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        cp .pio/build/esp32dev/firmware.bin alfeedo-v$VERSION-firmware.bin
+        cp merged-firmware.bin alfeedo-v$VERSION-merged.bin
+
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          BRANCH="${{ github.head_ref }}"
+        else
+          BRANCH="${{ github.ref_name }}"
+        fi
+        SAFE_BRANCH=$(echo "$BRANCH" | sed 's/\//-/g')
+        echo "BRANCH=$SAFE_BRANCH"
+        echo "BRANCH=$SAFE_BRANCH" >> $GITHUB_ENV
+        cp .pio/build/esp32dev/firmware.bin alfeedo-v$VERSION-$SAFE_BRANCH-firmware.bin
+        cp merged-firmware.bin alfeedo-v$VERSION-$SAFE_BRANCH-merged.bin
+        ls -l
+
+    - name: Archive Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32-binaries
+        path: |
+          alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin
+          alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-firmware.bin
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/') # Only run on tagged version
+      with:
+        files: |
+          alfeedo-v${{ env.VERSION }}-firmware.bin
+          alfeedo-v${{ env.VERSION }}-merged.bin
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare Web Flasher Manifest
+      run: |
+        # Update the manifest with the actual filenames and version
+        cp flasher/manifest-template.json flasher/manifest.json
+        sed -i "s/FIRMWARE_FILE/..\/alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin/g" flasher/manifest.json
+        sed -i "s/LATEST/${{ env.VERSION }}/g" flasher/manifest.json
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        destination_dir: ${{ env.BRANCH }}
+        publish_files: |
+          flasher/index.html
+          flasher/manifest.json
+          alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin

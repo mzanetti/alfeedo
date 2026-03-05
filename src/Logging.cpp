@@ -16,6 +16,7 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 */
 
 #include "Logging.h"
+#include <unordered_map>
 
 const std::unordered_map<LogMessage::Level, String> levelStrings = {
     {LogMessage::Level::Info, "INFO"},

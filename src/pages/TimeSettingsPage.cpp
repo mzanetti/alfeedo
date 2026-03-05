@@ -21,6 +21,7 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 #include "TimeSource.h"
 
 #include <cstring>
+#include <unordered_map>
 
 
 TimeSettingsPage::TimeSettingsPage():
