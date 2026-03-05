@@ -1,0 +1,39 @@
+<div class='container'>
+    <h2>Settings</h2>
+    <form action='/settings/time' method='GET'>
+        <button class='btn'>Time settings</button>
+    </form>
+    <form action='/settings/timers' method='GET'>
+        <button class='btn'>Timers</button>
+    </form>
+    <form action='/settings/network' method='GET'>
+        <button class='btn'>Network settings</button>
+    </form>
+    <form action='/settings/motor' method='GET'>
+        <button class='btn'>Feeder settings</button>
+    </form>
+    <form action='/settings/fillsensor' method='GET'>
+        <button class='btn'>Fill sensor settings</button>
+    </form>
+    <form action='/firmware' method='GET'>
+        <button class='btn'>Update Firmware</button>
+    </form>
+    <form id="reset-form" action="/reset" method="POST">
+        <button class='btn danger' onclick='confirmReset()'>Reset All Settings</button>
+    </form>
+    <form action='/' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+
+    <script>
+        function confirmReset() {
+            const message = "Are you sure? This will delete all settings and restart the device in Setup Mode.";
+            
+            if (confirm(message)) {
+            document.getElementById('reset-form').submit();
+            } else {
+                console.log("Reset cancelled by user.");
+            }
+        }
+    </script>
+</div>
