@@ -5,3 +5,15 @@
 .vscode/ipch
 
 data/*.gz
+
+# KiCad temporary and backup files
+*.bak
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups/
+_autosave-*
+*.lck
+fp-info-cache
+
+# KiCad local project settings
+*.kicad_prl
