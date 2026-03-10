@@ -19,8 +19,13 @@ This repository contains the firmware for the 3D printed cat feeder Alfeedo.
 
 ## How to build
 
-3D print model files along with a bill of materials are available on Makerworld. Electronics wiring can be simplified by ordering the Alfeedo PCB using the provided Gerber files in pcb/.
+3D print model files along with a bill of materials are available on Makerworld. 
+
+[Makerworld - Alfeedo](https://makerworld.com/en/models/2506745-alfeedo-smart-cat-feeder)
+
 Follow print and assembly instructions provided with the model files.
+
+Electronics wiring can be simplified by ordering the Alfeedo PCB using the provided Gerber files in [pcb/](https://github.com/mzanetti/alfeedo/tree/main/pcb).
 
 Flash the device using the [web flasher](https://mzanetti.github.io/alfeedo/main/flasher/).
 
