@@ -20,6 +20,8 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 #include <Arduino.h>
 #include <unordered_map>
 
+#include <string>
+
 namespace std {
   template <>
   struct hash<String> {
