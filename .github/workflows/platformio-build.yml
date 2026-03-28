@@ -16,13 +16,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup PlatformIO
-      # You may pin to the exact commit or the version.
-      # uses: n-vr/setup-platformio-action@ef5952e6a4d30c219158b781a84d31b018549c20
-      uses: n-vr/setup-platformio-action@v1.0.1
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
       with:
-        # PlatformIO version to use. (e.g. 5.2.5, 5.2 or 5
-        platformio-version: 6.1.19 # optional, default is newest
+        python-version: '3.13'
+        update-environment: true
+
+    - name: Install PlatformIO
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install platformio==6.1.19
 
     - name: Build
       run: platformio run
