@@ -1,0 +1,143 @@
+<div class='container'>
+    <button class='round-btn' style='float: left' onclick="window.location='/settings'">&#9881;</button>
+    <button class='round-btn' style='float: right' onclick="window.location='/logs'">&#128366;</button>
+    <h1 id="title">Alfeedo</h1>
+    <div class="info">
+        <div class="vertical-bar-wrapper">
+            <div class="progress-bar-vertical-container">
+                <div id="fillBar" class="progress-bar-vertical-fill" style="height: 0%;"></div>
+                <span class="progress-bar-label" id="fillLabel">0%</span>
+            </div>
+        </div>
+
+        <div class="center-time-wrapper">
+            <div id="serverTime" class="time-display">00:00</div>
+        </div>
+        <div id="timerIndicator" class="timer-indicator" style="visibility: hidden;">
+            <span class="timer-icon" onClick="window.location.href='/settings/timers';">&#9202;</span> 
+        </div>
+        
+    </div>
+
+    <div id='state-info-box' style='display: flex; justify-content: space-between; width: 100%; align-items: center;'>
+        <label id='state-label' style='font-size: 1.2em; font-weight: bold;'>Idle</label>
+        <label id='next-timer-label' style='font-size: 1.2em;'></label>
+    </div>
+
+    <div id='error-info-box' style='width: 100%; text-align: center; display: none; margin-top: 12px;'>
+        <span id='error-label' style='font-size: 1.2em; font-weight: bold;'><span>
+    </div>
+
+
+    <form id="meal-form" action='/feed?mode=meal' method='POST'>
+        <button class='big-btn confirm'>Dispense meal</button>
+    </form>
+    <form id="snack-form" action='/feed?mode=snack' method='POST'>
+        <button class='big-btn warn'>Dispense snack</button>
+    </form>
+
+
+    <script>
+        const title = document.getElementById('title');
+        const timeDisplay = document.getElementById('serverTime');
+        const initialTimeStr = timeDisplay.getAttribute('data-server-time');
+        console.log("retrieved server time:", initialTimeStr)
+        const fillLabel = document.getElementById('fillLabel');
+        const fillBar = document.getElementById('fillBar');
+        const errorBox = document.getElementById('error-info-box')
+        const errorLabel = document.getElementById('error-label');
+        const stateLabel = document.getElementById('state-label');
+        const nextTimerLabel = document.getElementById('next-timer-label');
+        const mealForm = document.getElementById('meal-form');
+        const snackForm = document.getElementById('snack-form');
+        const timerIndicator = document.getElementById('timerIndicator');
+
+        mealForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            feed(this.action);
+        });
+        snackForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            feed(this.action);
+        });
+
+        function feed(action) {
+            fetch(action, {method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded'}})
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Meal dispensed successfully!");
+                        updateDisplay();
+                    } else {
+                        console.error("Feeder communication error.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Network error:", error);
+                });
+        }
+
+        let currentTime = initialTimeStr ? new Date(initialTimeStr) : new Date();
+
+        function updateDisplay() {
+            const hours = currentTime.getHours().toString().padStart(2, '0');
+            const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+            const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+            currentTime.setSeconds(currentTime.getSeconds() + 1);
+
+            fetch("/api/status")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text(); 
+                })
+                .then(data => {
+                    const stateData = JSON.parse(data.trim());
+                    title.textContent = stateData.name || "Alfeedo";
+                    currentTime = new Date(stateData.time);
+                    fillLabel.textContent = stateData.fillLevel;
+                    fillLabel.style.color = stateData.fillLevel < 33 ? 'red' : 'white';
+                    fillBar.style.height = stateData.fillLevel + '%';
+                    errorBox.style.display = stateData.errorState == "ok" ? "none" : "block"
+                    switch (stateData.errorState) {                                
+                    case "jammed":
+                        errorLabel.style.color = 'var(--color-status-error)';
+                        errorLabel.innerHTML = "&#9888;&#65038; The feeder may be jammed! &#9888;&#65038";
+                        break;
+                    case "struggling":
+                        errorLabel.style.color = 'var(--color-status-warn2)';
+                        errorLabel.innerHTML = "&#9888;&#65038; The feeder is struggling! &#9888;&#65038";
+                        break;
+                    }
+
+                    switch (stateData.state) {
+                    case "idle":
+                        stateLabel.innerHTML = "Idle"
+                        break;
+                    case "moving":
+                        stateLabel.innerHTML = "Feeding..."
+                        break;
+                    }
+
+                    if (stateData.nextTimer.mode != "off") {
+                        timerIndicator.style.visibility = "visible";
+                        const hours = String(Math.floor(stateData.nextTimer.time / 60)).padStart(2, "0");
+                        const minutes = String(stateData.nextTimer.time % 60).padStart(2, "0")
+
+                        nextTimerLabel.innerHTML = "Next " + stateData.nextTimer.mode + ": " + hours + ":" + minutes
+                    } else {
+                        timerIndicator.style.visibility = "hidden";
+                        nextTimerLabel.innerHTML = "";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                    fillLabel.textContent = 'E'; // Display error placeholder
+                });
+        }
+
+        updateDisplay();
+        setInterval(updateDisplay, 1000);
+    </script>
+</div>

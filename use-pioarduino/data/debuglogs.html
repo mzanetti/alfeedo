@@ -1,0 +1,36 @@
+<div class='container'>
+    <h2>Debug Logs</h2>
+    <div class='info' style='margin-bottom:1.5em;'>
+        <div id="debuglog-container">Loading logs...</div>
+    </div>
+    <form action='/' method='GET'>
+        <button class='btn secondary'>Back</button>
+    </form>
+</div>
+
+<script>
+    function fetchLogs() {
+    fetch('/api/debuglogs')
+        .then(response => response.json())
+        .then(data => {
+            const logContainer = document.getElementById('debuglog-container');
+            logContainer.innerHTML = ''; // Clear loading state
+            console.log("Fetched logs:", data);
+            logs = ""
+            data.logs.forEach(entry => {
+                const timeString = new Date(entry.timestamp * 1000).toLocaleTimeString();
+                const levels = {
+                    0: "DEBUG",
+                    1: "INFO",
+                    2: "WARNING",
+                    3: "ERROR"
+                }
+                logs += '<div class="debuglog-line">' + timeString + " | " + levels[entry.level] + " | " + entry.category + ": " + entry.message + "</div>"
+            });
+            logContainer.innerHTML += logs;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        });
+    }
+    setInterval(fetchLogs, 2000);
+    fetchLogs();
+</script>
