@@ -19,8 +19,12 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 #include "MainPage.h"
 #include "Engine.h"
 #include "TimeSource.h"
+#include "Logging.h"
 
 #include <cstring>
+
+LoggingCategory lcSettings("Settings");
+
 
 std::vector<MainPage::HotKeyFunction> hotkeyList = {
     MainPage::HotKeyFunctionOff,
@@ -58,6 +62,7 @@ void SettingsPage::render(Adafruit_SSD1306 &display, Engine *engine, FillSensor 
     if (!m_needsRefresh) {
         return;
     }
+    logDebug(lcSettings, "Rendering SettingsPage. Cycle: " + String(m_cycle) + " Active: " + String(m_active) + " OptionActive: " + String(m_optionActive));
     m_needsRefresh = false;
     display.clearDisplay();
 
@@ -129,6 +134,7 @@ void SettingsPage::render(Adafruit_SSD1306 &display, Engine *engine, FillSensor 
 
 void SettingsPage::handleInput(DisplayController *controller, Engine *engine, DisplayController::ButtonInput input)
 {
+    logDebug(lcSettings, "Handling input on SettingsPage. Cycle: " + String(m_cycle) + " Active: " + String(m_active) + " OptionActive: " + String(m_optionActive) + " Input: " + String((int)input));
     m_cycle = 0;
     m_needsRefresh = true;
     if (!m_active) {
@@ -237,6 +243,7 @@ void SettingsPage::handleInput(DisplayController *controller, Engine *engine, Di
 void SettingsPage::reset()
 {
     m_active = false;
+    m_optionActive = false;
     m_currentOption = Option::DateTime;
     m_needsRefresh = true;
     m_cycle = 0;

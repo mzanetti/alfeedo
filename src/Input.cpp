@@ -44,6 +44,7 @@ void Input::loop()
     int reading = digitalRead(m_pin);
 
     if (reading != m_lastButtonState) {
+        logDebug(lcInput, "GPIO" + String(m_pin) + " state changed to " + String(reading) + ", starting debounce timer.");
         m_lastDebounceTime = now;
     }
 

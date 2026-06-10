@@ -115,7 +115,7 @@ void Motor::begin() {
  
 void Motor::move(float revolutions)
 {
-    int steps = revolutions * MOTOR_STEPS_PER_REVOLUTION * (MOTOR_MICROSTEPS > 0 ? MOTOR_MICROSTEPS : 1);
+    int steps = revolutions * MOTOR_STEPS_PER_REVOLUTION * GEAR_RATIO * (MOTOR_MICROSTEPS > 0 ? MOTOR_MICROSTEPS : 1);
     m_targetPosition = m_stepper->getCurrentPosition() + steps;
     m_stepper->moveTo(m_targetPosition);
     m_state = State::Moving;
@@ -129,12 +129,12 @@ void Motor::setSpeed(float speed)
     float stepsPerSec = speed * MOTOR_STEPS_PER_REVOLUTION * microsteps;
     logInfo(lcMotor, "Setting motor speed to " + String(speed) + " revolutions/sec (Steps/second: " + String(stepsPerSec) + ")");
 
-    m_stepper->setSpeedInHz(speed * MOTOR_STEPS_PER_REVOLUTION * MOTOR_MICROSTEPS);
+    m_stepper->setSpeedInHz(speed * MOTOR_STEPS_PER_REVOLUTION * MOTOR_MICROSTEPS * GEAR_RATIO);
 }
 
 float Motor::getSpeed() const
 {
-    return 1.0 * const_cast<FastAccelStepper *>(m_stepper)->getSpeedInMilliHz() / 1000 / MOTOR_STEPS_PER_REVOLUTION / MOTOR_MICROSTEPS; 
+    return 1.0 * const_cast<FastAccelStepper *>(m_stepper)->getSpeedInMilliHz() / 1000 / MOTOR_STEPS_PER_REVOLUTION / MOTOR_MICROSTEPS / GEAR_RATIO; 
 }
 
 void Motor::loop()
@@ -174,7 +174,7 @@ void Motor::loop()
         logInfo(lcMotor, "Starting stallguard recovery routine (moving back 100 steps).");
         int32_t currentPos = m_stepper->getCurrentPosition();
         // m_stepper->forceStopAndNewPosition(currentPos);
-        m_stepper->moveTo(currentPos-200);
+        m_stepper->moveTo(currentPos-2000);
         m_state = State::Reverse;
         m_stallCount++;
         break;

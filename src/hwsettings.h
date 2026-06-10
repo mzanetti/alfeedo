@@ -35,4 +35,6 @@ Copyright (C) 2025-2026 Michael Zanetti <michael_zanetti@gmx.net>
 #define MOTOR_MICROSTEPS 16
 #define MOTOR_RMS_CURRENT 800 // mA
 
+#define GEAR_RATIO 4.0
+
 #endif

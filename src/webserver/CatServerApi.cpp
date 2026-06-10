@@ -277,7 +277,6 @@ void CatServerApi::handleLogs(AsyncWebServerRequest *request) {
         JsonObject logObject = logArray.add<JsonObject>();
         logObject["timestamp"] = logEntry.timestamp;
         
-        // Use safer mapping to prevent crashes on unknown types
         if (logEntry.type == Engine::LogEntry::TypeManualFeed) logObject["type"] = "manual";
         else if (logEntry.type == Engine::LogEntry::TypeTimerFeed) logObject["type"] = "timer";
         else logObject["type"] = "unknown";
