@@ -1,0 +1,100 @@
+<div class='container'>
+    <h2>Fill Sensor</h2>
+    <div class='info' style='margin-bottom:1.5em;'>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Current measurement:</td>
+                    <td><span id='measurementLabel'>N/A</span>
+                </tr>
+                <tr>
+                    <td>Current fill level:</td>
+                    <td><span id='fillLabel'>N/A</span>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="input-container">
+        <form onsubmit="setConfig(event)">
+            <table>
+                <tr>
+                    <td>
+                        <span class="input-label">Full measurement (0-100mm):</span>
+                    </td>
+                    <td>
+                        <input type="number" class="spinner" name="fullMeasurement"  min="0"  max="100" step="1" value="%%FULL_MEASUREMENT%%"> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="input-label">Empty measurement (100-400mm):</span>
+                    </td>
+                    <td>
+                        <input type="number" class="spinner" name="emptyMeasurement" min="100"  max="400" step="1" value="%%EMPTY_MEASUREMENT%%"> 
+                    </td>
+                </tr>
+            </table>
+
+            <button class="btn" type="submit">Apply</button>
+        </form>
+    </div>
+    <form action='/settings' method='GET'>
+        <button class='btn secondary''>Back</button>
+    </form>
+</div>
+
+<script>
+    const measurementLabel = document.getElementById('measurementLabel');
+    const fillLabel = document.getElementById('fillLabel');
+
+    function updateMeasurement() {
+        fetch("/api/fillsensor")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text(); 
+            })
+            .then(data => {
+                const sensorData = JSON.parse(data.trim()); 
+                fillLabel.textContent = sensorData.fillLevel + "%";
+                measurementLabel.textContent = sensorData.measurement + "mm";
+                console.log(`Fill level updated: `, sensorData);
+            })
+            .catch(error => {
+                console.error('Error fetching fill level:', error);
+                fillLabel.textContent = 'N/A';
+                measurementLabel.textContent = 'N/A';
+            });
+    }
+    updateMeasurement();
+    setInterval(updateMeasurement, 1000);
+
+    function setConfig(event) {
+        event.preventDefault();
+        const fullMeasurement = parseInt(event.target.fullMeasurement.value);
+        const emptyMeasurement = parseInt(event.target.emptyMeasurement.value);
+        console.log("Applying fill sensor config: ", {fullMeasurement, emptyMeasurement});
+        fetch("/api/settings/fillsensor", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({fullMeasurement, emptyMeasurement})
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Fill sensor config updated successfully!");
+                updateMeasurement();
+            } else {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || "Unknown error");
+                });
+            }
+        })
+        .catch(error => {
+            alert("Failed to update fill sensor config: " + error.message);
+        });
+    }
+
+</script>

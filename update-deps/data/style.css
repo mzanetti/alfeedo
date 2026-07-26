@@ -1,0 +1,298 @@
+:root {
+  /* --- Backgrounds --- */
+  --color-page-bg: #CFF1F9;
+  --color-panel-bg: #F8FAFC;    
+  --color-border: #e2e8f0;      
+  --color-list-item-bg: #EFF6FF; 
+  --color-list-item-hover: #90E0EF;
+  --color-info-bg: #CAF0F8;
+
+  /* --- Text --- */
+  --color-text-main: #272932;
+  --color-text-invert: #F8FAFC;
+  --color-text-dim: #767B93;
+
+  /* --- Accents --- */
+  --color-accent: #2563EB;
+  --color-accent-focus-ring: rgba(37, 99, 235, 0.2);
+
+  /* --- Button Color Palette --- */
+  --color-btn: #2563EB;
+  --color-btn-secondary: #64748B;
+  --color-btn-confirm: #16A34A;
+  --color-btn-destroy: #DC2626;
+  --color-btn-warn: #ffcc00;
+  
+  --color-btn-shadow: 0 2px 4px rgba(148, 163, 184, 0.15); 
+  --color-btn-shadow-hover: 0 4px 8px rgba(148, 163, 184, 0.25);
+
+  /* --- Status Indicators --- */
+  --color-status-ok: #16A34A;    
+  --color-status-warn1: #8ca800;
+  --color-status-warn2: #f57c00;  
+  --color-status-error: #DC2626;
+ 
+
+  /* --- Shadows (Elevation) --- */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0,0,0,0.03);
+}
+
+body {
+    font-family: Arial, sans-serif; 
+    background: var(--color-page-bg); 
+    margin:0; 
+    padding:0;
+}
+
+.container { 
+    max-width: 400px; 
+    margin: 5vh auto; 
+    background: var(--color-panel-bg); 
+    border-radius: 12px; 
+    box-shadow: var(--shadow-md); 
+    padding: 2em;
+}
+
+container::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centers the logo perfectly */
+    width: 80%;       /* Make it big! */
+    max-width: 500px;
+    height: 80%;
+    background-image: url('/logo.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    
+    opacity: 0.04;    /* Drop opacity even further so it doesn't fight with the text */
+    pointer-events: none;
+    z-index: -1;
+}
+
+h1, h2, h3 { 
+    text-align: center; 
+    color: var(--color-text-main);
+}
+
+h4 {
+    margin-bottom: 4px;
+}
+
+.big-btn {
+    width: 100%; padding: 1.5em; font-size: 2em; border-radius: 12px; border: none;
+    background: var(--color-btn);
+    color: var(--color-text-main); 
+    margin: 1em 0;
+}
+.big-btn.confirm {
+    background: var(--color-btn-confirm);
+    color: var(--color-text-invert);
+}
+.big-btn.warn {
+    background: var(--color-btn-warn)
+}
+
+.round-btn {
+    background: 
+    var(--color-btn); 
+    color: var(--color-text-invert); 
+    border: none; 
+    border-radius: 50%; 
+    width: 2.5em; 
+    height: 2.5em; 
+    font-size: 1.5em;
+}
+    
+.btn { 
+    width: 100%; 
+    padding: 1.2em; 
+    font-size: 1.2em; 
+    border-radius: 10px; 
+    border: none; 
+    background: var(--color-btn); 
+    color: var(--color-text-invert);
+    margin: 0.5em 0;
+}
+.btn.secondary { 
+    background: var(--color-btn-secondary);
+}
+
+.btn.confirm { 
+    background: var(--color-btn-confirm);
+}
+.btn.danger { 
+    background: var(--color-btn-destroy);
+}
+.btn.hidden { 
+    display: none; !important
+}
+
+.info {
+    background: var(--color-info-bg);
+    border: 1px solid var(--color-nested-border);
+    padding: 1em;
+    border-radius: 8px;
+    margin: 1em 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+}
+
+
+.mode-combobox, .input-field, select.mode-combobox, input[type="time"].input-field, .spinner { 
+    box-sizing: border-box; 
+    height: 40px; 
+    width: 100%;
+    padding: 8px 16px; 
+    border-radius: 4px; 
+    background-color: var(--color-panel-bg);
+    color: var(--color-text-main); 
+    border: 1px solid var(--color-text-main); 
+    font-size: 16px; 
+    line-height: 1.5; 
+    -webkit-appearance: none; -moz-appearance: none; appearance: none; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mode-combobox:focus, .input-field:focus { 
+    border-color: var(--color-accent); 
+    outline: none; 
+    box-shadow: 0 0 0 3px var(--color-accent-focus-ring)
+}
+
+.selection-wrapper {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 40px;
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: var(--color-panel-bg);
+    border: 1px solid var(--color-text-main);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.selection-input {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: var(--color-text-main);
+    border: 1px solid var(--color-text-main);
+}
+.selection-label {
+    color: var(--color-text-main);
+    font-size: 16px;
+    line-height: 1.5;
+    user-select: none;
+}
+
+.center-time-wrapper {
+    margin: 0 auto; 
+    text-align: center;
+}
+
+.time-display {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--color-accent)
+}
+
+.vertical-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress-bar-vertical-container {
+    width: 30px;
+    height: 50px;
+    background-color: var(--color-panel-bg); 
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.progress-bar-vertical-fill {
+    width: 100%;
+    background-color: var(--color-accent); 
+    transition: height 0.5s ease-in-out; 
+}
+
+.progress-bar-label {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%); 
+    color: var(--color-text-invert);
+    font-size: 0.9em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
+    z-index: 2;
+}
+
+.timer-indicator {
+    width: 30px; 
+    text-align: center;
+}
+
+.timer-icon {
+    font-size: 2.5em;
+    line-height: 1;
+    color: black;
+}
+
+.updateProgressBarContainer {
+    width: 100%; 
+    background-color: var(--color-panel-bg); 
+    margin-top: 20px; 
+    display: none;
+}
+
+.updateProgressBar {
+    width: 0%;
+    height: 30px;
+    background-color: var(--color-accent);
+    text-align: center;
+    line-height: 30px;
+    color: white;
+    transition: width 0.5s ease-in-out; 
+}
+
+
+.logs-row {
+    border-bottom: 1px solid var(--color-list-item-hover); 
+    font-family: sans-serif; 
+    font-size: 0.9rem; 
+    background: var(--color-list-item-bg); 
+}
+
+.logs-row:hover {
+    background: var(--color-list-item-hover); 
+}
+
+#debuglog-container {
+    background: #000;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    padding: 10px;
+    height: 80vh;
+    overflow: auto; 
+    border: 1px solid #333; 
+}
+
+.debuglog-line {
+    white-space: nowrap;     
+    margin-bottom: 2px;
+    font-size: 10px;
+    border-bottom: 1px solid #1a1a1a;
+}

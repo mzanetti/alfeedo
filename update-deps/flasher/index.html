@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Alfeedo Web Flasher</title>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .container { border: 1px solid #ccc; padding: 20px; display: inline-block; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Alfeedo Installer</h1>
+        <p>Connect your ESP32 via USB and click below.</p>
+        
+        <esp-web-install-button manifest="manifest.json">
+            <button slot="activate">Connect & Flash Device</button>
+        </esp-web-install-button>
+    </div>
+</body>
+</html>
