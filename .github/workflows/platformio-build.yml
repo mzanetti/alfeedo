@@ -83,18 +83,17 @@ jobs:
 
     - name: Prepare Web Flasher Manifest
       run: |
-        # Update the manifest with the actual filenames and version
-        cp flasher/manifest-template.json flasher/manifest.json
-        sed -i "s/FIRMWARE_FILE/..\/alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin/g" flasher/manifest.json
-        sed -i "s/LATEST/${{ env.VERSION }}/g" flasher/manifest.json
-
+        mkdir -p deploy/main
+        cp flasher/manifest-template.json deploy/main/manifest.json
+        sed -i "s/FIRMWARE_FILE/alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin/g" deploy/main/manifest.json
+        sed -i "s/LATEST/${{ env.VERSION }}/g" deploy/main/manifest.json
+        cp flasher/index.html deploy/main/index.html
+        cp alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin deploy/main/
+        ls -la deploy/main/
+        
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .
-        destination_dir: ${{ env.BRANCH }}
-        publish_files: |
-          flasher/index.html
-          flasher/manifest.json
-          alfeedo-v${{ env.VERSION }}-${{ env.BRANCH }}-merged.bin
+        publish_dir: ./deploy
+        keep_files: true

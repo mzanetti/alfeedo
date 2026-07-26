@@ -45,6 +45,7 @@ private:
     void handleLogs(AsyncWebServerRequest *request);
     void handleFeed(AsyncWebServerRequest *request);
     void handleDebugLogs(AsyncWebServerRequest *request);
+    void handleReset(AsyncWebServerRequest *request);
     void handleMotorSettings(AsyncWebServerRequest *request);
     void handleFillSensorSettings(AsyncWebServerRequest *request);
     void handleTimeSettings(AsyncWebServerRequest *request);

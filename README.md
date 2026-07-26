@@ -27,7 +27,11 @@ Follow print and assembly instructions provided with the model files.
 
 Electronics wiring can be simplified by ordering the Alfeedo PCB using the provided Gerber files in [pcb/](https://github.com/mzanetti/alfeedo/tree/main/pcb).
 
-Flash the device using the [web flasher](https://mzanetti.github.io/alfeedo/main/flasher/).
+-Flash the device using the [web flasher](https://mzanetti.github.io/alfeedo/main/flasher/).
+
+-Connect with the Alfeedo-WIFI-AP
+
+-Navigate to alfeedo.local and set network credentials.
 
 Note that the provided firmware assumes wiring to look like on the Alfeedo PCB. If instead you prefer using a different setup, you'll have to build the firmware yourself and adjust the pins in hwsettings.h.
 
