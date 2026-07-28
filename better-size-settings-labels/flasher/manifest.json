@@ -1,0 +1,13 @@
+{
+  "name": "Alfeedo",
+  "version": "1.0.0",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "../alfeedo-v1.0.0-better-size-settings-labels-merged.bin", "offset": 0 }
+      ]
+    }
+  ]
+}
