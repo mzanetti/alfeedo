@@ -109,12 +109,12 @@ void SettingsPage::render(Adafruit_SSD1306 &display, Engine *engine, FillSensor 
         break;
     case Option::MealSize: 
         display.setTextSize(1);
-        drawScrollingLabel(display, m_cycle, "Portion", false, 0);
+        drawScrollingLabel(display, m_cycle, "Meal size", false, 0);
         drawBarControl(display, engine->revolutionsPerPortion(), engine->minRevolutionsPerPortion(), engine->maxRevolutionsPerPortion(), yOffset);
         break;
     case Option::SnackSize:
         display.setTextSize(1);
-        drawScrollingLabel(display, m_cycle, "Snack", false, 0);
+        drawScrollingLabel(display, m_cycle, "Snack size", false, 0);
         drawBarControl(display, engine->revolutionsPerSnack(), engine->minRevolutionsPerPortion(), engine->maxRevolutionsPerPortion(), yOffset);
         break;
     case Option::HotKey:
